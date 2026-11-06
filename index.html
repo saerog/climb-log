@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#101512">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Climb Log">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<title>Climb Log — 12 Week Training Journal</title>
+<style>
+:root{color-scheme:dark;--bg:#101512;--panel:#19221d;--panel2:#202c25;--line:#34443a;--text:#edf4ee;--muted:#a8b8ac;--accent:#a9e3b6;--accent2:#d4f2d9;--danger:#ffb4a9}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#203329 0,#101512 55%);color:var(--text);font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+main{max-width:940px;margin:0 auto;padding:28px 18px 60px}.top{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+h1{font-size:clamp(27px,5vw,40px);margin:5px 0 0;letter-spacing:-1px}.eyebrow{color:var(--accent);font-size:12px;font-weight:800;letter-spacing:1.7px}
+.sub{color:var(--muted);margin:5px 0 22px}.pill{border:1px solid var(--line);border-radius:99px;padding:6px 11px;color:var(--accent2);font-size:12px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:20px 0}.stat,.card{background:rgba(25,34,29,.94);border:1px solid var(--line);border-radius:16px;padding:15px}
+.stat span,.muted{color:var(--muted);font-size:12px}.stat strong{display:block;font-size:23px;margin-top:4px}
+.controls{display:grid;grid-template-columns:1fr 2fr;gap:12px;margin:16px 0}.field label{display:block;color:var(--muted);font-size:12px;margin-bottom:6px}
+select,input,textarea{width:100%;background:#101813;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:11px;font:inherit}
+.tabs{display:flex;gap:8px;margin:14px 0}.tab,button{border:1px solid var(--line);background:var(--panel2);color:var(--text);padding:10px 14px;border-radius:10px;font:inherit;cursor:pointer}
+.tab.active,button.primary{background:var(--accent);color:#102016;border-color:var(--accent);font-weight:750}
+h2{font-size:22px;margin:0 0 3px}.objective{color:var(--muted);margin:0 0 16px}.progressline{height:7px;background:#0e1511;border-radius:9px;overflow:hidden;margin:8px 0 14px}.progressline i{display:block;height:100%;background:var(--accent);width:0}
+.exercise{display:flex;gap:12px;align-items:flex-start;border:1px solid var(--line);border-radius:12px;padding:12px;margin:8px 0;background:#17201b}
+.exercise input{width:19px;height:19px;accent-color:#a9e3b6;margin:2px 0 0;flex:none}.exercise b{display:block}.exercise small{color:var(--muted)}
+.formgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:16px}.wide{grid-column:1/-1}
+textarea{min-height:95px;resize:vertical}.rangeRow{display:flex;justify-content:space-between;color:var(--muted);font-size:12px}
+.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:16px}.hint{font-size:12px;color:var(--muted);margin-top:12px}
+.sectionhead{display:flex;justify-content:space-between;align-items:center;gap:10px}.saved{margin-top:18px}.entry{border-top:1px solid var(--line);padding:12px 0}.entry strong{color:var(--accent2)}.entry button{padding:5px 9px;font-size:12px;float:right}
+footer{color:var(--muted);font-size:12px;margin-top:24px}
+@media(max-width:650px){.stats{grid-template-columns:repeat(2,1fr)}.controls,.formgrid{grid-template-columns:1fr}.wide{grid-column:auto}.tabs{display:grid;grid-template-columns:repeat(3,1fr)}.tab{padding:9px 5px}}
+</style>
+</head>
+<body>
+<main>
+ <div class="top"><div><div class="eyebrow">12-WEEK TRAINING PLAN</div><h1>Climb Log</h1><div class="sub">Bouldering · Lead · Strength · Endurance</div></div><div class="pill">iPhone + Mac · Cloud sync</div></div>
+ <section class="stats">
+  <div class="stat"><span>Starting boulder</span><strong>6B+–6C</strong></div>
+  <div class="stat"><span>Starting lead</span><strong>6B+–6C</strong></div>
+  <div class="stat"><span>Body weight</span><strong>83 kg</strong></div>
+  <div class="stat"><span>Pull-ups</span><strong>10</strong></div>
+ </section>
+ <section class="card" style="margin-bottom:14px" aria-label="Cloud account">
+  <div class="sectionhead"><h2 style="font-size:18px">Cloud sync</h2><span class="pill" id="syncStatus" aria-live="polite">Local-only until connected</span></div>
+  <p class="muted" id="accountInfo">Sign in on both devices with the same email to share your journal.</p>
+  <div class="actions" id="authSignedOut"><input id="email" type="email" autocomplete="email" placeholder="Your email address" style="max-width:320px"><button id="signIn" class="primary">Email me a sign-in link</button></div>
+  <div class="actions" id="authSignedIn" hidden><button id="syncNow">Sync now</button><button id="signOut">Sign out</button></div>
+  <div class="actions"><button id="import">Import old journal (JSON)</button><input type="file" id="importFile" accept="application/json,.json" hidden></div>
+  <p class="hint">Use the Export journal (JSON) button in your original Mac app, then import that file here. Import merges entries and preserves the newer copy of each session. Keep a backup before importing.</p>
+ </section>
+ <div class="controls">
+  <div class="field"><label for="week">TRAINING WEEK</label><select id="week"></select></div>
+  <div class="field"><label>TRAINING PHASE</label><div class="card" id="phase" style="padding:10px 13px">Foundation & volume</div></div>
+ </div>
+ <div class="tabs" role="tablist">
+  <button class="tab active" data-day="Monday">Monday</button><button class="tab" data-day="Wednesday">Wednesday</button><button class="tab" data-day="Saturday">Saturday</button>
+ </div>
+ <section class="card">
+  <div class="sectionhead"><div><h2 id="sessionTitle">Bouldering strength</h2><p class="objective" id="objective">Maximum strength, finger strength and core.</p></div><span class="pill" id="completion">0/6 done</span></div>
+  <div class="progressline"><i id="progress"></i></div>
+  <div id="exerciseList"></div>
+  <div class="formgrid">
+   <div class="field"><label for="grade">HARDEST GRADE COMPLETED</label><input id="grade" placeholder="e.g. 6C+ or 7A"></div>
+   <div class="field" id="attemptWrap"><label for="attempts">ATTEMPTS ON HARDEST PROJECT</label><input id="attempts" type="number" min="0" value="0"></div>
+   <div class="field" id="routesWrap" hidden><label for="routes">ROUTES COMPLETED</label><input id="routes" type="number" min="0" placeholder="e.g. 4"></div>
+   <div class="field"><label for="pump">PUMP LEVEL: <output id="pumpOut">3</output>/10</label><input id="pump" type="range" min="1" max="10" value="3"><div class="rangeRow"><span>Fresh</span><span>Very pumped</span></div></div>
+   <div class="field"><label for="fatigue">OVERALL FATIGUE: <output id="fatigueOut">5</output>/10</label><input id="fatigue" type="range" min="1" max="10" value="5"><div class="rangeRow"><span>Fresh</span><span>Exhausted</span></div></div>
+   <div class="field"><label for="weight">BODY WEIGHT (KG)</label><input id="weight" type="number" step=".1" value="83"></div>
+   <div class="field"><label for="pullups">PULL-UPS</label><input id="pullups" type="number" min="0" value="10"></div>
+   <div class="field wide"><label for="notes">TRAINING NOTES</label><textarea id="notes" placeholder="What went well? What was difficult? Technique, recovery, pain, motivation..."></textarea></div>
+  </div>
+  <div class="actions"><button class="primary" id="save">Save session</button><button id="clear">Clear session form</button><button id="export">Export journal (JSON)</button><button id="csv">Download entries (CSV)</button></div>
+  <p class="hint">Strength work is included in each session: pulling and core on Monday, antagonist/shoulder work on Wednesday, and balanced upper-body strength on Saturday. Keep 1–2 reps in reserve and reduce accessory sets if climbing quality or recovery drops. Your checklist and saved sessions are stored locally first and sync to Supabase after you sign in. Export backups regularly. Do not train through finger or pulley pain.</p>
+ </section>
+ <section class="card saved"><div class="sectionhead"><h2>Saved journal entries</h2><span class="pill" id="entryCount">0 entries</span></div><div id="entries"><p class="muted">Your saved sessions will appear here.</p></div></section>
+ <footer>Climb Log · Personal training journal. Fingerboard hangs are optional and intended only if you are already accustomed to fingerboard training. Deload in weeks 4 and 8; week 12 is a taper and testing week.</footer>
+</main>
+<script src="./config.js"></script>
+<script type="module" src="./cloud.js"></script>
+<script>
+const plans={
+ Monday:{title:"Bouldering strength",objective:"Maximum strength, finger strength and core.",items:[
+ ["Warm-up","10 min: mobility and easy climbing."],["Easy bouldering","15 min: progressive warm-up problems."],["Fingerboard (if accustomed)","5 × 7 sec on a comfortable edge; controlled, submaximal effort. Skip if new to fingerboard training."],["Limit bouldering","4–5 hard problems, 3–5 quality attempts each; rest 2–4 min."],["Climbing-specific strength","Weighted pull-ups 3 × 4–6 (or bodyweight 3 × 5); rest 2–3 min. Keep 1–2 reps in reserve."],["Core training","Hanging knee raises 3 × 10; plank 3 × 40 sec."],["Cooldown","5 min easy movement and mobility."]]},
+ Wednesday:{title:"Lead endurance",objective:"Improve endurance, reduce pump and climb efficiently.",items:[
+ ["Warm-up","15 min: mobility and easy climbing."],["Easy lead routes","2 routes below your limit."],["Endurance routes","3–4 routes around 6a–6b, adjusted to how you feel; rest 5–7 min."],["Lead technique","15 min: clipping, resting, shake-outs, breathing and route reading."],["Route intervals (progressively)","When ready: 2 routes back-to-back × 2 rounds; rest 8–10 min between rounds. Keep routes comfortably below your limit."],["Antagonist & shoulder strength","Push-ups 2 × 10–15; band external rotations 2 × 15 each side; wrist extensor raises 2 × 15. Easy, controlled effort."],["Cooldown","5 min easy climbing."]]},
+ Saturday:{title:"Power & performance",objective:"Develop explosive power and power endurance.",items:[
+ ["Warm-up","15 min: mobility and easy bouldering."],["Dynamic bouldering","3–4 problems with controlled explosive moves; rest 2–3 min."],["Limit bouldering","4–5 hard attempts with full recovery."],["Power endurance","3 moderate boulder problems consecutively × 3 rounds; rest 3–4 min."],["Pull-ups","3 × 5 controlled repetitions; do not train to failure. Add a small load only if all reps are crisp."],["Dumbbell or cable rows","3 × 8–10 repetitions; controlled shoulder movement."],["Push-ups","3 × 8–15 repetitions; stop before form breaks."],["Hanging knee raises","3 × 10 repetitions."],["Shoulder external rotations","2 × 15 each side."],["Wrist extensor raises","2 × 15–20 repetitions."],["Cooldown","5 min easy movement."]]}
+};
+const phaseFor=w=>w<=4?"Foundation & volume":w<=8?"Strength & power":"Performance & power endurance";
+const $=id=>document.getElementById(id);
+let day="Monday",week=1;
+const storeKey="climbLog.v1";
+let data={checks:{},entries:[]};
+function setStatus(message){let e=document.getElementById("syncStatus");if(e)e.textContent=message}
+try{data={...data,...JSON.parse(localStorage.getItem(storeKey)||"{}")}}catch(e){}
+function persist(){localStorage.setItem(storeKey,JSON.stringify(data));window.dispatchEvent(new Event("climblog:changed"))}
+for(let i=1;i<=12;i++){let o=document.createElement("option");o.value=i;o.textContent="Week "+i;$("week").append(o)}
+function key(){return `${week}-${day}`}
+function render(){
+ $("phase").textContent=phaseFor(week);
+ $("sessionTitle").textContent=plans[day].title;$("objective").textContent=plans[day].objective;
+ $("attemptWrap").hidden=day==="Wednesday";$("routesWrap").hidden=day!=="Wednesday";
+ document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("active",b.dataset.day===day));
+ $("exerciseList").innerHTML="";
+ plans[day].items.forEach((it,i)=>{
+  const id=`${key()}-${i}`,label=document.createElement("label");label.className="exercise";
+  const cb=document.createElement("input");cb.type="checkbox";cb.checked=!!data.checks[id];
+  cb.addEventListener("change",()=>{data.checks[id]=cb.checked;persist();updateProgress()});
+  const text=document.createElement("span");text.innerHTML=`<b>${it[0]}</b><small>${it[1]}</small>`;
+  label.append(cb,text);$("exerciseList").append(label);
+ });
+ updateProgress();loadForm();renderEntries();
+}
+function updateProgress(){let n=plans[day].items.filter((_,i)=>data.checks[`${key()}-${i}`]).length,total=plans[day].items.length;$("completion").textContent=`${n}/${total} done`;$("progress").style.width=`${n/total*100}%`}
+function loadForm(){let e=data.entries.find(x=>x.key===key());$("grade").value=e?.grade||"";$("attempts").value=e?.attempts??0;$("routes").value=e?.routes||"";$("pump").value=e?.pump||3;$("fatigue").value=e?.fatigue||5;$("weight").value=e?.weight||83;$("pullups").value=e?.pullups||10;$("notes").value=e?.notes||"";updateOutputs()}
+function updateOutputs(){$("pumpOut").value=$("pump").value;$("fatigueOut").value=$("fatigue").value}
+$("pump").addEventListener("input",updateOutputs);$("fatigue").addEventListener("input",updateOutputs);
+$("week").addEventListener("change",()=>{week=Number($("week").value);render()});
+document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>{day=b.dataset.day;render()}));
+$("save").addEventListener("click",()=>{
+ let entry={key:key(),week,day,phase:phaseFor(week),title:plans[day].title,date:new Date().toISOString(),grade:$("grade").value,attempts:$("attempts").value,routes:$("routes").value,pump:$("pump").value,fatigue:$("fatigue").value,weight:$("weight").value,pullups:$("pullups").value,notes:$("notes").value,checks:plans[day].items.map((it,i)=>({name:it[0],done:!!data.checks[`${key()}-${i}`]}))};
+ let idx=data.entries.findIndex(x=>x.key===key());if(idx>=0)data.entries[idx]=entry;else data.entries.unshift(entry);persist();renderEntries();setStatus("Session saved locally; syncing if signed in.");
+});
+$("clear").addEventListener("click",()=>{if(!confirm("Clear this session's form fields? Saved entry and exercise checkboxes are not deleted."))return;$("grade").value="";$("attempts").value=0;$("routes").value="";$("notes").value="";$("pump").value=3;$("fatigue").value=5;updateOutputs()});
+function renderEntries(){
+ $("entryCount").textContent=`${data.entries.length} entr${data.entries.length===1?"y":"ies"}`;
+ if(!data.entries.length){$("entries").innerHTML='<p class="muted">Your saved sessions will appear here.</p>';return}
+ $("entries").innerHTML="";
+ [...data.entries].sort((a,b)=>b.date.localeCompare(a.date)).forEach(e=>{
+  let div=document.createElement("div");div.className="entry";
+  let date=new Date(e.date).toLocaleDateString(undefined,{year:"numeric",month:"short",day:"numeric"});
+  let title=document.createElement("strong");title.textContent=`Week ${e.week} · ${e.day} · ${date}`;
+  let del=document.createElement("button");del.textContent="Delete";del.addEventListener("click",()=>{if(confirm("Delete this saved entry?")){data.entries=data.entries.filter(x=>x.key!==e.key);persist();renderEntries()}});
+  let p=document.createElement("p");p.className="muted";p.textContent=`${e.title} · Grade: ${e.grade||"—"} · ${e.day==="Wednesday"?"Routes: "+(e.routes||"—"):"Attempts: "+e.attempts} · Pump ${e.pump}/10 · Fatigue ${e.fatigue}/10 · Pull-ups ${e.pullups}`;
+  let n=document.createElement("p");n.textContent=e.notes||"No notes.";
+  div.append(title,del,p,n);$("entries").append(div);
+ });
+}
+$("export").addEventListener("click",()=>download("climb-log-backup.json",JSON.stringify(data,null,2),"application/json"));
+$("csv").addEventListener("click",()=>{let cols=["week","day","date","grade","attempts","routes","pump","fatigue","weight","pullups","notes"];let q=v=>'"'+String(v??"").replaceAll('"','""')+'"';let csv=[cols.join(","),...data.entries.map(e=>cols.map(c=>q(e[c])).join(","))].join("\n");download("climb-log-entries.csv",csv,"text/csv")});
+function download(name,content,type){let a=document.createElement("a"),url=URL.createObjectURL(new Blob([content],{type}));a.href=url;a.download=name;a.click();URL.revokeObjectURL(url)}
+render();
+</script>
+</body>
+</html>
